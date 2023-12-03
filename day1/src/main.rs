@@ -20,7 +20,7 @@ fn part1(input: &str) -> i32 {
         })
 }
 
-const Nums: [&str; 9] = [
+const NUMS: [&str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 fn part2(input: &str) -> i32 {
@@ -35,15 +35,15 @@ fn part2(input: &str) -> i32 {
             let f_num_opt = line
                 .chars()
                 .enumerate()
-                .filter(|(index, y)| y.is_ascii_digit())
+                .filter(|(_, y)| y.is_ascii_digit())
                 .nth(0);
             let l_num_opt = line
                 .chars()
                 .rev()
                 .enumerate()
-                .filter(|(idx, y)| y.is_ascii_digit())
+                .filter(|(_, y)| y.is_ascii_digit())
                 .nth(0);
-            Nums.iter().enumerate().for_each(|(idx, &num)| {
+            NUMS.iter().enumerate().for_each(|(idx, &num)| {
                 let matched_index_str_tuple = line.match_indices(num).collect::<Vec<_>>();
                 if let Some((matched_index, _)) = matched_index_str_tuple.iter().nth(0) {
                     if *matched_index < min_index_till_now {
