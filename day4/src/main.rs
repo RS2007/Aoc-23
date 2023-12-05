@@ -68,19 +68,19 @@ fn part2(input: &str) -> u32 {
             }
         }
     });
-    lookup.iter().fold(0, |acc, (key, val)| {
-        if *key <= input.lines().count().try_into().unwrap() {
-            acc + *val
-        } else {
-            acc
-        }
-    })
+    lookup.values().fold(0, |acc, val| acc + *val)
 }
 
 fn main() {
     let input = fs::read_to_string("./input.txt").expect("Cannot read file to string");
+    let start_time = std::time::Instant::now();
     println!("part1: {:?}", part1(&input));
+    let end_time = std::time::Instant::now();
+    println!("part1 took {:?}", end_time - start_time);
+    let start_time = std::time::Instant::now();
     println!("part2: {:?}", part2(&input));
+    let end_time = std::time::Instant::now();
+    println!("part2 took {:?}", end_time - start_time);
 }
 
 #[cfg(test)]
