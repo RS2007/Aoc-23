@@ -1,3 +1,4 @@
+use std::cmp::{max, min};
 use std::fs;
 
 use nom::bytes::complete::tag;
@@ -236,113 +237,32 @@ fn part1(input: &str) -> u64 {
 
 fn part2(input: &str) -> u64 {
     let (_, field_map) = parse_input(input).unwrap();
-    let a = field_map
-        .seeds
-        .chunks(2)
-        .flat_map(|x| {
-            let start_seed = x[0];
-            let seek_num = x[1];
-            start_seed..start_seed + seek_num
-        })
-        .map(|seed| {
-            let seed_val = seed;
-            let soil_val = field_map.seed_soil_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&seed_val) {
-                    return accum + dest_start + seed_val - source_start;
+    let mut processed: Vec<(u64, u64)> = vec![];
+    let mut to_be_proceesed: Vec<(u64, u64)> = vec![];
+    for seed_range_chunk in field_map.seeds.chunks(2).into_iter() {
+        let seed_range_start = seed_range_chunk[0];
+        let seed_range_stride = seed_range_chunk[1];
+        to_be_proceesed.push((seed_range_start, seed_range_start + seed_range_stride));
+        while !to_be_proceesed.is_empty() {
+            let working_range = to_be_proceesed.pop().unwrap();
+            println!("popped {:?}", working_range);
+            for range in field_map.seed_soil_vec.iter() {
+                let dest_strt = range.iter().nth(0).unwrap();
+                let source_strt = range.iter().nth(1).unwrap();
+                let stride = range.iter().nth(2).unwrap();
+                let overlap_start = max(*source_strt, working_range.0);
+                let overlap_end = min(*source_strt + *stride, working_range.1);
+                if overlap_start < overlap_end {
+                    processed.push((overlap_start, overlap_end));
                 }
-                accum
-            });
-            let soil_val = match soil_val {
-                0 => seed_val,
-                _ => soil_val,
-            };
-            let fertilizer_val = field_map.soil_fert_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&soil_val) {
-                    return accum + dest_start + soil_val - source_start;
-                }
-                accum
-            });
-            let fertilizer_val = match fertilizer_val {
-                0 => soil_val,
-                _ => fertilizer_val,
-            };
-            let water_val = field_map.fert_water_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&fertilizer_val) {
-                    return accum + dest_start + fertilizer_val - source_start;
-                }
-                accum
-            });
-            let water_val = match water_val {
-                0 => fertilizer_val,
-                _ => water_val,
-            };
-            let light_val = field_map.water_light_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&water_val) {
-                    return accum + dest_start + water_val - source_start;
-                }
-                accum
-            });
-            let light_val = match light_val {
-                0 => water_val,
-                _ => light_val,
-            };
+                dbg!(overlap_start);
+                dbg!(overlap_end);
+            }
+        }
+        dbg!("{:?} {:?}", to_be_proceesed, processed);
+    }
 
-            let temp_val = field_map.light_temp_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&light_val) {
-                    return accum + dest_start + light_val - source_start;
-                }
-                accum
-            });
-            let temp_val = match temp_val {
-                0 => light_val,
-                _ => temp_val,
-            };
-
-            let humidity_val = field_map.temp_humidity_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&temp_val) {
-                    return accum + dest_start + temp_val - source_start;
-                }
-                accum
-            });
-            let humidity_val = match humidity_val {
-                0 => temp_val,
-                _ => humidity_val,
-            };
-            let loc_val = field_map.humidity_loc_vec.iter().fold(0, |accum, vect| {
-                let source_start = *vect.iter().nth(1).unwrap();
-                let dest_start = *vect.iter().nth(0).unwrap();
-                let source_increment = *vect.iter().nth(2).unwrap();
-                if (source_start..source_start + source_increment).contains(&humidity_val) {
-                    return accum + dest_start + humidity_val - source_start;
-                }
-                accum
-            });
-            let loc_val = match loc_val {
-                0 => humidity_val,
-                _ => loc_val,
-            };
-            loc_val
-        });
-
-    a.min().unwrap()
+    3
 }
 
 fn main() {
