@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
@@ -82,28 +81,28 @@ fn part1(input: &str) -> u64 {
     const POKER_ORDER: [char; 13] = [
         'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2',
     ];
-    let parsed = parse_input(input);
+    let mut parsed = parse_input(input);
+    parsed.sort_by(|a, b| {
+        let f_hand_type = find_hand_type(&a.hand);
+        let s_hand_type = find_hand_type(&b.hand);
+        match f_hand_type.cmp(&s_hand_type) {
+            std::cmp::Ordering::Equal => {
+                let (non_match_1, non_match2) = a
+                    .hand
+                    .chars()
+                    .zip(b.hand.chars())
+                    .find(|(val1, val2)| val1 != val2)
+                    .unwrap();
+                let pos1 = POKER_ORDER.iter().position(|&x| x == non_match_1).unwrap();
+                let pos2 = POKER_ORDER.iter().position(|&x| x == non_match2).unwrap();
+                pos2.cmp(&pos1)
+            }
+            _ => s_hand_type.cmp(&f_hand_type),
+        }
+    });
+
     parsed
         .into_iter()
-        .sorted_by(|a, b| {
-            let f_hand_type = find_hand_type(&a.hand);
-            let s_hand_type = find_hand_type(&b.hand);
-            match f_hand_type.cmp(&s_hand_type) {
-                std::cmp::Ordering::Equal => {
-                    let (non_match_1, non_match2) = a
-                        .hand
-                        .chars()
-                        .zip(b.hand.chars())
-                        .find(|(val1, val2)| val1 != val2)
-                        .unwrap();
-                    let pos1 = POKER_ORDER.iter().position(|&x| x == non_match_1).unwrap();
-                    let pos2 = POKER_ORDER.iter().position(|&x| x == non_match2).unwrap();
-                    pos1.cmp(&pos2)
-                }
-                _ => f_hand_type.cmp(&s_hand_type),
-            }
-        })
-        .rev()
         .enumerate()
         .fold(0, |acc, (indx, turn)| acc + (indx as u64 + 1) * turn.bid)
 }
@@ -167,28 +166,28 @@ fn part2(input: &str) -> u64 {
     const POKER_ORDER: [char; 13] = [
         'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J',
     ];
-    let parsed = parse_input(input);
+    let mut parsed = parse_input(input);
+    parsed.sort_by(|a, b| {
+        let f_hand_type = modified_hand_type_with_joker(&a.hand);
+        let s_hand_type = modified_hand_type_with_joker(&b.hand);
+        match f_hand_type.cmp(&s_hand_type) {
+            std::cmp::Ordering::Equal => {
+                let (non_match_1, non_match2) = a
+                    .hand
+                    .chars()
+                    .zip(b.hand.chars())
+                    .find(|(val1, val2)| val1 != val2)
+                    .unwrap();
+                let pos1 = POKER_ORDER.iter().position(|&x| x == non_match_1).unwrap();
+                let pos2 = POKER_ORDER.iter().position(|&x| x == non_match2).unwrap();
+                pos2.cmp(&pos1)
+            }
+            _ => s_hand_type.cmp(&f_hand_type),
+        }
+    });
+
     parsed
         .into_iter()
-        .sorted_by(|a, b| {
-            let f_hand_type = modified_hand_type_with_joker(&a.hand);
-            let s_hand_type = modified_hand_type_with_joker(&b.hand);
-            match f_hand_type.cmp(&s_hand_type) {
-                std::cmp::Ordering::Equal => {
-                    let (non_match_1, non_match2) = a
-                        .hand
-                        .chars()
-                        .zip(b.hand.chars())
-                        .find(|(val1, val2)| val1 != val2)
-                        .unwrap();
-                    let pos1 = POKER_ORDER.iter().position(|&x| x == non_match_1).unwrap();
-                    let pos2 = POKER_ORDER.iter().position(|&x| x == non_match2).unwrap();
-                    pos1.cmp(&pos2)
-                }
-                _ => f_hand_type.cmp(&s_hand_type),
-            }
-        })
-        .rev()
         .enumerate()
         .fold(0, |acc, (indx, turn)| acc + (indx as u64 + 1) * turn.bid)
 }
