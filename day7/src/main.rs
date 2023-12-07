@@ -108,6 +108,61 @@ fn part1(input: &str) -> u64 {
         .fold(0, |acc, (indx, turn)| acc + (indx as u64 + 1) * turn.bid)
 }
 
+fn modified_hand_type_with_joker(hand: &str) -> HandType {
+    let j_count = hand
+        .chars()
+        .fold(0, |acc, x| if x == 'J' { acc + 1 } else { acc });
+    let hand_type = find_hand_type(hand);
+    match hand_type {
+        HandType::FiveOfKind => hand_type,
+        HandType::FourOfKind => match j_count {
+            4 | 1 => HandType::FiveOfKind,
+            0 => HandType::FourOfKind,
+            _ => {
+                assert!(false, "Unreachable");
+                HandType::FourOfKind
+            }
+        },
+        HandType::FullHouse => match j_count {
+            3 | 2 => HandType::FiveOfKind,
+            _ => HandType::FullHouse,
+        },
+        HandType::ThreeOfKind => match j_count {
+            3 | 1 => HandType::FourOfKind,
+            0 => HandType::ThreeOfKind,
+            _ => {
+                assert!(false, "Unreachable");
+                HandType::ThreeOfKind
+            }
+        },
+        HandType::TwoPair => match j_count {
+            2 => HandType::FourOfKind,
+            1 => HandType::FullHouse,
+            0 => HandType::TwoPair,
+            _ => {
+                assert!(false, "Unreachable");
+                HandType::TwoPair
+            }
+        },
+        HandType::OnePair => match j_count {
+            2 | 1 => HandType::ThreeOfKind,
+            0 => HandType::OnePair,
+            _ => {
+                assert!(false, "Unreachable");
+                HandType::TwoPair
+            }
+        },
+        HandType::HighCard => match j_count {
+            1 => HandType::OnePair,
+            0 => HandType::HighCard,
+            _ => {
+                assert!(false, "Unreachable");
+                HandType::HighCard
+            }
+        },
+    }
+}
+
 fn part2(input: &str) -> u64 {
     const POKER_ORDER: [char; 13] = [
         'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J',
@@ -116,141 +171,21 @@ fn part2(input: &str) -> u64 {
     parsed
         .into_iter()
         .sorted_by(|a, b| {
-            let f_hand_type = find_hand_type(&a.hand);
-            let s_hand_type = find_hand_type(&b.hand);
+            let f_hand_type = modified_hand_type_with_joker(&a.hand);
+            let s_hand_type = modified_hand_type_with_joker(&b.hand);
             match f_hand_type.cmp(&s_hand_type) {
-                _ => match f_hand_type.cmp(&s_hand_type) {
-                    _ => {
-                        let j_count_a =
-                            &a.hand
-                                .chars()
-                                .fold(0, |acc, x| if x == 'J' { acc + 1 } else { acc });
-                        let j_count_b =
-                            &b.hand
-                                .chars()
-                                .fold(0, |acc, x| if x == 'J' { acc + 1 } else { acc });
-                        let modified_f_hand_type = match f_hand_type {
-                            HandType::FiveOfKind => f_hand_type,
-                            HandType::FourOfKind => match j_count_a {
-                                4 => HandType::FiveOfKind,
-                                1 => HandType::FiveOfKind,
-                                0 => HandType::FourOfKind,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::FourOfKind
-                                }
-                            },
-                            HandType::FullHouse => match j_count_a {
-                                3 => HandType::FiveOfKind,
-                                2 => HandType::FiveOfKind,
-                                _ => HandType::FullHouse,
-                            },
-                            HandType::ThreeOfKind => match j_count_a {
-                                3 => HandType::FourOfKind,
-                                1 => HandType::FourOfKind,
-                                0 => HandType::ThreeOfKind,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::ThreeOfKind
-                                }
-                            },
-                            HandType::TwoPair => match j_count_a {
-                                2 => HandType::FourOfKind,
-                                1 => HandType::FullHouse,
-                                0 => HandType::TwoPair,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::TwoPair
-                                }
-                            },
-                            HandType::OnePair => match j_count_a {
-                                2 => HandType::ThreeOfKind,
-                                1 => HandType::ThreeOfKind,
-                                0 => HandType::OnePair,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::TwoPair
-                                }
-                            },
-                            HandType::HighCard => match j_count_a {
-                                1 => HandType::OnePair,
-                                0 => HandType::HighCard,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::HighCard
-                                }
-                            },
-                        };
-                        let modified_s_hand_type = match s_hand_type {
-                            HandType::FiveOfKind => s_hand_type,
-                            HandType::FourOfKind => match j_count_b {
-                                4 => HandType::FiveOfKind,
-                                1 => HandType::FiveOfKind,
-                                0 => HandType::FourOfKind,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::FourOfKind
-                                }
-                            },
-                            HandType::FullHouse => match j_count_b {
-                                3 => HandType::FiveOfKind,
-                                2 => HandType::FiveOfKind,
-                                _ => HandType::FullHouse,
-                            },
-                            HandType::ThreeOfKind => match j_count_b {
-                                3 => HandType::FourOfKind,
-                                1 => HandType::FourOfKind,
-                                0 => HandType::ThreeOfKind,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::ThreeOfKind
-                                }
-                            },
-                            HandType::TwoPair => match j_count_b {
-                                2 => HandType::FourOfKind,
-                                1 => HandType::FullHouse,
-                                0 => HandType::TwoPair,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::TwoPair
-                                }
-                            },
-                            HandType::OnePair => match j_count_b {
-                                2 => HandType::ThreeOfKind,
-                                1 => HandType::ThreeOfKind,
-                                0 => HandType::OnePair,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::TwoPair
-                                }
-                            },
-                            HandType::HighCard => match j_count_b {
-                                1 => HandType::OnePair,
-                                0 => HandType::HighCard,
-                                _ => {
-                                    assert!(false, "Unreachable");
-                                    HandType::HighCard
-                                }
-                            },
-                        };
-                        match modified_f_hand_type.cmp(&modified_s_hand_type) {
-                            std::cmp::Ordering::Equal => {
-                                let (non_match_1, non_match2) = a
-                                    .hand
-                                    .chars()
-                                    .zip(b.hand.chars())
-                                    .find(|(val1, val2)| val1 != val2)
-                                    .unwrap();
-                                let pos1 =
-                                    POKER_ORDER.iter().position(|&x| x == non_match_1).unwrap();
-                                let pos2 =
-                                    POKER_ORDER.iter().position(|&x| x == non_match2).unwrap();
-                                pos1.cmp(&pos2)
-                            }
-                            _ => modified_f_hand_type.cmp(&modified_s_hand_type),
-                        }
-                    }
-                },
+                std::cmp::Ordering::Equal => {
+                    let (non_match_1, non_match2) = a
+                        .hand
+                        .chars()
+                        .zip(b.hand.chars())
+                        .find(|(val1, val2)| val1 != val2)
+                        .unwrap();
+                    let pos1 = POKER_ORDER.iter().position(|&x| x == non_match_1).unwrap();
+                    let pos2 = POKER_ORDER.iter().position(|&x| x == non_match2).unwrap();
+                    pos1.cmp(&pos2)
+                }
+                _ => f_hand_type.cmp(&s_hand_type),
             }
         })
         .rev()
