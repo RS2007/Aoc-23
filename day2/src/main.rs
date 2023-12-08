@@ -2,12 +2,10 @@ use std::{cmp::max, fs};
 
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_until},
-    character::complete::{char, digit1, multispace0, multispace1, space0},
-    combinator::{map_res, opt, verify},
-    error::Error,
-    multi::{separated_list0, separated_list1},
-    sequence::{delimited, pair, terminated, tuple},
+    bytes::complete::tag,
+    character::complete::{digit1, multispace0},
+    combinator::map_res,
+    multi::separated_list0,
     IResult,
 };
 
