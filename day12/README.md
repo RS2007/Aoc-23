@@ -1,0 +1,2 @@
+- Tried two approaches, the first was a direct backtracking with $2^k$ complexity, was very slow.
+- Figured out some overlapping subproblems, did a memoized recursion(which can be written a 100x better, but I am probably not going to at any time in the near future)
