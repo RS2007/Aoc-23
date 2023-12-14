@@ -316,28 +316,24 @@ fn recurse(
 
 fn part1_memo(input: &str) -> u64 {
     let parsed = parse_input1(input);
-    let nums = parsed
+    parsed
         .iter()
         .map(|(current_state, condition)| {
             let mut memo: BTreeMap<(usize, String), u64> = BTreeMap::new();
-            let a = recurse(0, &mut condition.clone(), current_state, &mut memo);
-            a
+            recurse(0, &mut condition.clone(), current_state, &mut memo)
         })
-        .collect::<Vec<u64>>();
-    nums.iter().sum::<u64>()
+        .sum::<u64>()
 }
 
 fn part2(input: &str) -> u64 {
     let parsed = parse_input2(input);
-    let nums = parsed
+    parsed
         .iter()
         .map(|(current_state, condition)| {
             let mut memo: BTreeMap<(usize, String), u64> = BTreeMap::new();
-            let a = recurse(0, &mut condition.clone(), current_state, &mut memo);
-            a
+            recurse(0, &mut condition.clone(), current_state, &mut memo)
         })
-        .collect::<Vec<u64>>();
-    nums.iter().sum::<u64>()
+        .sum::<u64>()
 }
 
 fn main() {
