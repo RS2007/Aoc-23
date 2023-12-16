@@ -1,10 +1,10 @@
-use std::{borrow::BorrowMut, collections::BTreeMap, fs};
+use std::fs;
 
 fn part1(input: &str) -> u64 {
     input
         .split(",")
         .map(|split_string| {
-            let a = split_string.chars().fold(0, |accum, x| {
+            split_string.chars().fold(0, |accum, x| {
                 if x == '\n' {
                     return accum;
                 }
@@ -12,8 +12,7 @@ fn part1(input: &str) -> u64 {
                 hash *= 17;
                 hash = hash % 256;
                 hash
-            });
-            a
+            })
         })
         .sum::<u64>()
 }
@@ -61,11 +60,10 @@ fn part2(input: &str) -> u64 {
         .iter()
         .enumerate()
         .map(|(box_indx, val)| {
-            let a = val
-                .iter()
+            val.iter()
                 .enumerate()
-                .map(|(indx, val)| (box_indx + 1) * (indx + 1) * val.1 as usize);
-            a.sum::<usize>()
+                .map(|(indx, val)| (box_indx + 1) * (indx + 1) * val.1 as usize)
+                .sum::<usize>()
         })
         .sum::<usize>() as u64
 }
